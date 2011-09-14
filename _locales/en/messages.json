@@ -1,0 +1,14 @@
+{
+	"gtalkNotificationTitle":{
+		"message": "GTalk Notification"
+	},
+	"gtalkContactSignonNotification":{
+		"message": "has signed on"
+	},
+	"appName":{
+		"message":"GTalk Contact Notifications"
+	},
+	"appDesc" : {
+		"message":"A cool extension that notifies you when someone signs into GTalk"
+	}
+}

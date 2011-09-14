@@ -1,0 +1,14 @@
+﻿{
+	"gtalkNotificationTitle":{
+		"message": "נוטיפקציית גוגל"
+	},
+	"gtalkContactSignonNotification":{
+		"message": "התחבר"
+	},
+	"appName":{
+		"message":"GTalk Contact Notifications"
+	},
+	"appDesc" : {
+		"message":"תוסף מגניב שמרשה לך לראות מי נכנס לגוגל"
+	}
+}
