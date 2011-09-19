@@ -97,10 +97,8 @@ var chatNotifier = {
             action:'notify',
             type:type,
             text:text
-        });
-     //   debugMsg(logLevels.info,"TYPE: " + type + " BUDDY: " + text);
-        
-    },
+        });		
+	},
 	onOrOffline: function(state){
 		//var logStr = (state == "") ? "Mobile" : state;
 		//console.log("Logging " + logStr);

@@ -2,12 +2,21 @@ function onRequest(request,sender,callback){
     debugMsg(logLevels.info,"Request: " + request.action);
     switch(request.action){
         case 'notify':
-            showNotification(request.type,request.text,function(){});
-            break;
+		try{
+	
+	
+			
+			showNotification(request.type,request.text,function(){});
+		}catch(err){
+			debugMsg(logLevels.error,"Error: " + err);
+		}
+			break;
         default:
             debugMsg(logLevels.error,"Unknown action: " + request.action);
     }   
 }
+
+
 
 function showNotification(type,text,callback){
     debugMsg(logLevels.info,"Notification: " + text);
