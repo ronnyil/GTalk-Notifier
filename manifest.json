@@ -1,12 +1,12 @@
 {
 	"default_locale" : "en",
 	"name" : "__MSG_appName__",
-	"version" : "0.0.2",
+	"version" : "0.0.3",
 	"description" : "__MSG_appDesc__",
-	"background_page" : "bg.html",	
+	"background_page" : "bg.html",
+	"options_page" : "options.html",
 	"permissions" : [
-		"notifications",
-		"tabs"
+		"notifications"
     ],
 	"icons": { "16": "icons/icon16.png",
            "48": "icons/icon48.png",

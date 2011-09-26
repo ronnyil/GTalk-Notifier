@@ -10,5 +10,8 @@
 	},
 	"appDesc" : {
 		"message":"A cool extension that notifies you when someone signs into GTalk"
+	},
+	"options_main_explanation" : {
+		"message" : "Here you can enter the amount of seconds you wish for the notification to stay onscreen, if you wish it to stay onscreen until you explicitly close it, choose 0"
 	}
 }

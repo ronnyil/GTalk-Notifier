@@ -38,12 +38,19 @@ function showNotification(type,text,callback){
                                 chrome.i18n.getMessage(title),
                                 text);
             notification.show();
+			var sec = localStorage["num_of_sec"];
+			if(sec != 0){
             setTimeout(function(){
                 notification.cancel();
-            },4000);
+            },sec * 1000);
+			} 
     } catch(err){
         debugMsg(logLevels.error,"Notification permission needed: " + err);
         window.webkitNotifications.requestPermission();
     }    
+}
+var tst = localStorage["num_of_sec"];
+if(typeof tst == 'undefined'){
+	localStorage["num_of_sec"] = 3;
 }
 chrome.extension.onRequest.addListener(onRequest);

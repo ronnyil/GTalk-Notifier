@@ -1,0 +1,86 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Options</title>
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <style type="text/css">
+        body
+        {
+            margin: 0;
+            padding: 0;
+            background-color: #808080;
+            font-family: Arial;
+            font-size: 65%;
+        }
+        #wrapper
+        {
+            margin: 0 auto;
+            width: 400px;
+            background-color: #8E8E8E;
+            border-right: 2.5px dashed black;
+            border-left: 2.5px dashed black;
+            border-bottom: 2.5px dashed black;
+            text-align: center;
+            padding-top: 20px;
+        }
+        #wrapper div
+        {
+            padding: 8px;
+            font-size: 1.5em;
+            font-weight: 700;
+            color: White;
+        }
+        p
+        {
+            font-size: 1.6em;
+            color: White;
+            font-family: "Century Gothic" , Arial;
+        }
+        #wrapper p.hebrew
+        {
+            direction: rtl;
+        }
+    </style>
+    <script type="text/javascript">
+        function loadData() {
+            var un = localStorage["num_of_sec"];
+            if (typeof un != 'undefined') {
+                $("#num_of_sec").attr("value", un);
+            } 
+        }
+        function setData() {
+            var noc = $("#num_of_sec").attr("value")
+            if (noc != "") {
+                localStorage["num_of_sec"] = parseInt(noc);
+                $("#successLabel").text("Your settings were succesfully saved! This window will now close");
+                setTimeout(function () { window.close(); }, 1250);
+            }
+        }
+        function clearData() {
+            loadData();
+        }
+        $(document).ready(function () {
+            loadData();
+            
+            $("#main_explanation").text(chrome.i18n.getMessage("options_main_explanation"));
+
+        });
+    </script>
+</head>
+<body>
+    <div id="wrapper">
+        <div>
+        <p id="main_explanation"></p>
+            <label for="num_of_sec">
+                Username:</label>
+            <input type="number" id="num_of_sec" min="0" max="10" />
+        </div>
+        <div>
+            <input type="button" value="Save Info" onclick="setData()" /><input type="button"
+                value="Clear Info" onclick="clearData()" />
+        </div>
+        <div id="successLabel">
+        </div>
+    </div>
+</body>
+</html>
