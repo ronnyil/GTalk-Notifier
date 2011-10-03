@@ -16,6 +16,11 @@
 			"matches" : [ "https://mail.google.com/*"],
 			"js" : [ "js/jquery.min.js","js/log.js","js/core.js" ],
 			"run_at" : "document_idle"
+		},
+		{ 
+		   "matches" : [ "https://www.facebook.com/*","http://www.facebook.com/*"],
+		   "js" : [ "js/jquery.min.js","js/log.js","js/fb_core.js" ],
+		   "run_at" : "document_idle"
 		}
 	]
 }

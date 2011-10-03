@@ -2,10 +2,7 @@ function onRequest(request,sender,callback){
     debugMsg(logLevels.info,"Request: " + request.action);
     switch(request.action){
         case 'notify':
-		try{
-	
-	
-			
+		try{			
 			showNotification(request.type,request.text,function(){});
 		}catch(err){
 			debugMsg(logLevels.error,"Error: " + err);
@@ -23,20 +20,23 @@ function showNotification(type,text,callback){
     switch (type) {
         case 'GTalk':
             title = "gtalkNotificationTitle";
-            logo = "icons/icon48.png";
-        
-            text = text + ' ' + chrome.i18n.getMessage("gtalkContactSignonNotification");
-
+            logo = chrome.extension.getURL("icons/icon48.png");			
+            final_text = text + ' ' + chrome.i18n.getMessage("gtalkContactSignonNotification");
             break;
+		case 'Facebook':
+			title = "fbNotificationTitle";
+			logo = text.logo;
+			final_text = text.text + ' ' + chrome.i18n.getMessage("fbContactSignonNotification");
+			break;
         default:
             debugMsg(logLevels.error,"Unknown notification type: " + type);
             
     }
     try{
             var notification = window.webkitNotifications.createNotification(
-                                chrome.extension.getURL(logo),
+                                logo,
                                 chrome.i18n.getMessage(title),
-                                text);
+                                final_text);
             notification.show();
 			var sec = localStorage["num_of_sec"];
 			if(sec != 0){
