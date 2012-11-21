@@ -1,4 +1,4 @@
-<html>
+﻿o<html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Options</title>
@@ -41,31 +41,8 @@
             direction: rtl;
         }
     </style>
-    <script type="text/javascript">
-        function loadData() {
-            var un = localStorage["num_of_sec"];
-            if (typeof un != 'undefined') {
-                $("#num_of_sec").attr("value", un);
-            } 
-        }
-        function setData() {
-            var noc = $("#num_of_sec").attr("value")
-            if (noc != "") {
-                localStorage["num_of_sec"] = parseInt(noc);
-                $("#successLabel").text("Your settings were succesfully saved! This window will now close");
-                setTimeout(function () { window.close(); }, 1250);
-            }
-        }
-        function clearData() {
-            loadData();
-        }
-        $(document).ready(function () {
-            loadData();
-            
-            $("#main_explanation").text(chrome.i18n.getMessage("options_main_explanation"));
-
-        });
-    </script>
+    <script src="js/jquery.min.js" type="text/javascript"></script>
+    <script src="js/options.js" type="text/javascript"></script>
 </head>
 <body>
     <div id="wrapper">
@@ -76,8 +53,8 @@
             <input type="number" id="num_of_sec" min="0" max="10" />
         </div>
         <div>
-            <input type="button" value="Save Info" onclick="setData()" /><input type="button"
-                value="Clear Info" onclick="clearData()" />
+            <input type="button" id="save_button" value="Save Info" onclick="setData()" /><input type="button"
+                id="clear_button" value="Clear Info" onclick="clearData()" />
         </div>
         <div id="successLabel">
         </div>

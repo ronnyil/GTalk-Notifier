@@ -1,150 +1,131 @@
-// jquery.escape 1.0 - escape strings for use in jQuery selectors
-// http://ianloic.com/tag/jquery.escape
-// Copyright 2009 Ian McKellar <http://ian.mckellar.org/>
-// Just like jQuery you can use it under either the MIT license or the GPL
-// (see: http://docs.jquery.com/License)
-(function() {
-escape_re = /[#;&,\.\+\*~':"!\^\$\[\]\(\)=>|\/\\]/;
-jQuery.escape = function jQuery$escape(s) {
-  var left = s.split(escape_re, 1)[0];
-  if (left == s) return s;
-  return left + '\\' + 
-    s.substr(left.length, 1) + 
-    jQuery.escape(s.substr(left.length+1));
-}
-})();
+/**
+* The GTalkChatNotifier class.
+*/
 
-var canvas;
-var Buddys;
-$(document).ready(function()
-{
-
-		canvas = document.getElementById('canvas_frame').contentDocument;
-		$(canvas).ready(check);
-});
-function check(){
-		/*	elem = canvas.getElementById(":91");
-			debugMsg(logLevels.info,"Debugging: Here I am");
-			if(elem == null) { setTimeout(check,10); return; }
-			var style = $(elem).attr("style");			
-			if(style == 'undefined' || style == undefined) { setTimeout(check,10); return; }
-			debugMsg(logLevels.info,"Debugging: Here I am");
-			if(style.trim() != "display: none;") { setTimeout(check,10); return; }
-            debugMsg(logLevels.info,"Done loading, starting up.")*/
-			StartUp();
-}
-var notifier;
-function StartUp()
-{
-	notifier = chatNotifier.loadChatNotifier();	
-	setTimeout(chatNotifier.reload,10000);
-}
-var chatNotifier = {
-	reload: function() {
-		debugMsg(logLevels.info,"Reloading");
-		for(buddy in Buddys)
-		{
-			var tbody = canvas.getElementById(buddy);
-			tbody.removeEventListener("DOMSubtreeModified",chatNotifier.checkModification);
-		}
-		Buddys = null;
-		chatNotifier.loadChatNotifier();
-		//chatNotifier.logBuddies();
-		setTimeout(chatNotifier.reload,10000);
-	},
-	loadChatNotifier: function(){
-		Buddys = Array();
-		var arr = $("#canvas_frame").contents().find(".vC").toArray();
-		for(i = 0; i < arr.length; i++){
-			//console.log("ID: " + arr[i].id);
-			if(arr[i].id != ':99'){
-			elem = $(arr[i]);
-			var imgElem = elem.children().first().children().first().children().first();
-			var Buddy = new Object();
-            			
-			Buddy.TbodyElement = elem;
-            
-			Buddy.ID = elem.attr("id");
-            Buddy.ImageElement = imgElem;
-			Buddy.Name = elem.find(".HHshnc").first().html();
-			
-			Buddy.IsOnline = this.onOrOffline(imgElem.attr("alt"));
-            
-            regElem = canvas.getElementById(elem.attr('id'));
-			Buddys[Buddy.ID] = Buddy;	            
-            regElem.addEventListener("DOMSubtreeModified",this.checkModification);
-			}
-		}
-		return this;
-	},
-    checkModification: function(event){  
-   //     debugMsg(logLevels.info,event.target.nodeName + " " + )
-        if(event.target.nodeName != 'IMG'){
-            return;
+function GTalkChatNotifier() {
+    
+    var that = this;
+    this.observer = new WebKitMutationObserver(function (mutations) {
+        for (var i = 0; i < mutations.length; i++) {
+            debugMsg(logLevels.info, "In the observer.");
+            var curTarget = mutations[i].target;
+            var buddy = that.Buddies[curTarget.id];
+            var OrigState = buddy.IsOnline;
+            var alt = buddy.ImageElement.attr('alt');
+            var NewState = GTalkChatNotifier.onOrOffline(alt);
+            if (NewState && !OrigState) {
+                debugMsg(logLevels.info, buddy.Name + " " + alt);
+                that.showNotification('GTalk', buddy.Name);                
+            }
+            buddy.IsOnline = NewState;
         }
-        var buddy = Buddys[event.currentTarget.id];
-        var origState = buddy.IsOnline;
-        var alt = canvas.getElementById(event.target.id).getAttribute('alt');
-        debugMsg(logLevels.info,"New one: " + buddy.Name + "  " +  alt);
-        var newState = chatNotifier.onOrOffline(alt);
-        if(!newState){
-            chatNotifier.showNotification('GTalk',buddy.Name);
+    });
+    this.hasOwnership = false;
+    this.Buddies = Array();
+    this.reload();
+}
+/**
+* Static method to determine the state of a buddy.
+*/
+GTalkChatNotifier.onOrOffline = function (state) {
+    switch (state) {
+        case "Available":
+            return true;
+            break;
+        case "Available (video enabled)":
+            return true;
+            break;
+        case "Busy":
+            return true;
+            break;
+        case "Busy (video enabled)":
+            return true;
+            break;
+        case "Idle (video enabled)":
+            return true;
+            break;
+        case "Idle":
+            return true;
+            break;
+        case "Chatting":
+            return true;
+            break;
+        case "Offline":
+            return false;
+            break;
+        case "":
+            return false;
+            break;
+        default:
+            debugMsg(logLevels.error, "Unknown state: " + state);
+            return false;
+            break;
+    }
+};
+GTalkChatNotifier.prototype.attainOwnership = function () {
+    var that = this;
+    chrome.extension.sendRequest({ action: 'attainOwnership' }, function (response) {
+        if (response.hasOwnership) {
+            that.hasOwnership = true;
         }
-        Buddys[event.currentTarget.id].IsOnline = newState;
-    },
-    showNotification: function(type,text){
+    });
+    setTimeout(function () { that.attainOwnership(); }, 750);
+}
+/**
+*
+*/
+GTalkChatNotifier.prototype.showNotification = function (type, text) {
         chrome.extension.sendRequest({
-            action:'notify',
-            type:type,
-            text:text
-        });		
-	},
-	onOrOffline: function(state){
-		//var logStr = (state == "") ? "Mobile" : state;
-		//console.log("Logging " + logStr);
-		switch(state)
-		{
-			case "Available":
-				return true;
-				break;
-			case "Available (video enabled)":
-				return true;
-				break;
-			case "Busy":
-				return true;
-				break;
-			case "Busy (video enabled)":
-				return true;
-				break;
-			case "Idle (video enabled)":
-				return true;
-				break;
-			case "Idle":
-				return true;
-				break;
-            case "Chatting":
-                return true;
-                break;
-			case "Offline":
-				return false;
-				break;
-			case "":
-				return false;
-				break;
-			default:
-				debugMsg(logLevels.error,"Unknown state: " + state);
-				return false;
-				break;
-		}			
-	},
-	logBuddies: function(){		
-		for(var buddy in Buddys)
-		{
-			var logString = "";
-			logString = logString + "--BUDDYS-- " + Buddys[buddy].ID + ", " + Buddys[buddy].Name + " - ";
-			logString = logString + (Buddys[buddy].IsOnline ? "Online" : "Offline");
-			debugMsg(logLevels.info,logString);
-		}
-		
-	}
-}
+            action: 'notify',
+            type: type,
+            text: text
+        });
+};
+GTalkChatNotifier.prototype.loadChatNotifier = function () {
+    var that = this;
+    var buddiesElementsArray = $("body").contents().find(".vC").toArray();
+    debugMsg(logLevels.info, "Num of buddies: " + buddiesElementsArray.length);
+
+    //Initializing the Buddies array.
+    for (var i = 0; i < buddiesElementsArray.length; i++) {
+        if (buddiesElementsArray[i].id != ':99') {
+            var Buddy = new Object();
+            var jqueryElem = $(buddiesElementsArray[i]);
+
+            //Getting the image.
+            Buddy.ImageElement = jqueryElem.children().first().children().first().children().first();
+            Buddy.TBodyElement = jqueryElem;
+            Buddy.ID = Buddy.ImageElement.attr('id');
+
+            var elemTest = jqueryElem.find('.az1').first();
+            if (elemTest.children().length > 0) {
+                Buddy.Name = elemTest.children().first().html();
+            } else {
+                Buddy.Name = elemTest.html();
+            }
+
+            Buddy.IsOnline = GTalkChatNotifier.onOrOffline(Buddy.ImageElement.attr('alt'));
+            this.observer.observe(Buddy.ImageElement[0], { attributes: true });
+            this.Buddies[Buddy.ID] = Buddy;
+        }
+    }
+};
+
+GTalkChatNotifier.prototype.reload = function () {
+    debugMsg(logLevels.info, this.Buddies.length);
+    if (this.Buddies.length > 10) {
+        return;
+    }
+    var that = this;
+    this.loadChatNotifier();
+    if (this.Buddies.length < 10) {
+        setTimeout(function () {
+            that.reload();
+        }, 500);
+    }
+};
+
+
+$(document).ready(function () {
+    var notifier = new GTalkChatNotifier();
+});
