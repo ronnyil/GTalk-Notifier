@@ -13,7 +13,7 @@ function GTalkChatNotifier() {
             var OrigState = buddy.IsOnline;
             var alt = buddy.ImageElement.attr('alt');
             var NewState = GTalkChatNotifier.onOrOffline(alt);
-            if (NewState && !OrigState) {
+            if (NewState && !OrigState && alt != 'Chatting') {
                 debugMsg(logLevels.info, buddy.Name + " " + alt);
                 that.showNotification('GTalk', buddy.Name);                
             }
