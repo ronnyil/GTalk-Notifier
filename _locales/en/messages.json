@@ -8,8 +8,11 @@
    "gtalkContactSignonNotification": {
       "message": "has signed on"
    },
-   "gtalkNotificationTitle": {
+   "gtalkOnlineNotificationTitle": {
       "message": "GTalk Notification"
+   },
+   "gtalkStatusNotificationTitle": {
+	  "message": "%name% has changed status."
    },
    "options_main_description": {
       "message": "Here you can enter the amount of seconds you wish for the notification to stay onscreen, if you wish it to stay onscreen until you explicitly close it, choose 0"

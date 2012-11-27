@@ -1,11 +1,19 @@
-/**
+﻿/**
 * The GTalkChatNotifier class.
 */
 
-function GTalkChatNotifier() {
-    
+function GTalkChatNotifier() {    
+    var that = this;	
+    this.setUpObservers();
+    this.setUpExtensionListeners();
+    this.hasOwnership = false;
+    this.Buddies = new Object();	
+    this.BuddiesLength = 0;
+    this.reload();
+}
+GTalkChatNotifier.prototype.setUpObservers = function () {
     var that = this;
-    this.observer = new WebKitMutationObserver(function (mutations) {
+    this.imageElementObserver = new WebKitMutationObserver(function (mutations) {
         for (var i = 0; i < mutations.length; i++) {
             debugMsg(logLevels.info, "In the observer.");
             var curTarget = mutations[i].target;
@@ -15,20 +23,44 @@ function GTalkChatNotifier() {
             var NewState = GTalkChatNotifier.onOrOffline(alt);
             if (NewState && !OrigState && alt != 'Chatting') {
                 debugMsg(logLevels.info, buddy.Name + " " + alt);
-                that.showNotification('GTalk', buddy.Name);                
+                that.showNotification('GTalk_Online', { 'Name': buddy.Name }, buddy.ID);
             }
             buddy.IsOnline = NewState;
         }
     });
-    this.hasOwnership = false;
-    this.Buddies = Array();
-    this.reload();
-}
+};
+GTalkChatNotifier.prototype.setUpExtensionListeners = function () {
+    chrome.extension.onMessage.addListener(
+        function (request, sender, sendResponse) {
+            if (request.type == 'click') {
+                document.getElementById(request.id).click();
+            }
+        }
+    );
+};
 /**
 * Static method to determine the state of a buddy.
 */
 GTalkChatNotifier.onOrOffline = function (state) {
     switch (state) {
+		case "זמין":
+			return true;
+			break;
+		case "זמין (וידאו מאופשר)":
+			return true;
+			break;
+		case "לא פנוי":
+			return true;
+			break;
+		case "סרק (מאופשר וידיאו)":
+			return true;
+			break;
+		case "לא פעיל":
+			return true;
+			break;
+		case "לא מקוון":
+			return false;
+			break;
         case "Available":
             return true;
             break;
@@ -74,18 +106,17 @@ GTalkChatNotifier.prototype.attainOwnership = function () {
 /**
 *
 */
-GTalkChatNotifier.prototype.showNotification = function (type, text) {
+GTalkChatNotifier.prototype.showNotification = function (type, text,id) {
         chrome.extension.sendRequest({
             action: 'notify',
             type: type,
-            text: text
+            text: text,
+			id: id
         });
 };
 GTalkChatNotifier.prototype.loadChatNotifier = function () {
     var that = this;
     var buddiesElementsArray = $("body").contents().find(".vC").toArray();
-    debugMsg(logLevels.info, "Num of buddies: " + buddiesElementsArray.length);
-
     //Initializing the Buddies array.
     for (var i = 0; i < buddiesElementsArray.length; i++) {
         if (buddiesElementsArray[i].id != ':99') {
@@ -105,20 +136,21 @@ GTalkChatNotifier.prototype.loadChatNotifier = function () {
             }
 
             Buddy.IsOnline = GTalkChatNotifier.onOrOffline(Buddy.ImageElement.attr('alt'));
-            this.observer.observe(Buddy.ImageElement[0], { attributes: true });
+            this.imageElementObserver.observe(Buddy.ImageElement[0], { attributes: true });
             this.Buddies[Buddy.ID] = Buddy;
+			this.BuddiesLength++;
         }
     }
 };
 
 GTalkChatNotifier.prototype.reload = function () {
     debugMsg(logLevels.info, this.Buddies.length);
-    if (this.Buddies.length > 10) {
+    if (this.BuddiesLength > 10) {
         return;
     }
     var that = this;
     this.loadChatNotifier();
-    if (this.Buddies.length < 10) {
+    if (this.BuddiesLength < 10) {
         setTimeout(function () {
             that.reload();
         }, 500);

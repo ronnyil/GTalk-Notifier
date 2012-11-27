@@ -89,7 +89,14 @@ App.prototype.onRequest = function (request, sender, callback) {
                 return;
             }
             try {
-                this.showNotification(request.type, request.text, function () { });
+			   var onclickFunction = function () {
+                    debugMsg(logLevels.info, "clicked");
+                    chrome.windows.update(sender.tab.windowId, { focused: true });
+                    chrome.tabs.update(sender.tab.id, { selected: true });
+                    chrome.tabs.sendMessage(sender.tab.id, { id: request.id, type: 'click' });
+                    this.cancel();
+                };
+                this.showNotification(request.type, request.text, onclickFunction);
             } catch (err) {
                 debugMsg(logLevels.error, "Error: " + err);
             }
@@ -112,11 +119,11 @@ App.prototype.onRequest = function (request, sender, callback) {
 App.prototype.showNotification = function (type, text, callback) {
     debugMsg(logLevels.info, "Notification: " + text);
     switch (type) {
-        case 'GTalk':
-            title = "gtalkNotificationTitle";
+        case 'GTalk_Online':
+             title = chrome.i18n.getMessage("gtalkOnlineNotificationTitle");
             logo = "icons/icon48.png";
 
-            text = text + ' ' + chrome.i18n.getMessage("gtalkContactSignonNotification");
+			text = text.Name + ' ' + chrome.i18n.getMessage("gtalkContactSignonNotification");
 
             break;
         default:
@@ -127,8 +134,9 @@ App.prototype.showNotification = function (type, text, callback) {
         debugMsg(logLevels.info, chrome.extension.getURL(logo));
         var notification = window.webkitNotifications.createNotification(
                             logo,
-                            chrome.i18n.getMessage(title),
+                            title,
                             text);
+		notification.onclick = callback;
         notification.show();
         var sec = localStorage["num_of_sec"];
         if (sec != 0) {
@@ -147,5 +155,6 @@ App.prototype.testAndSetLocalStorage = function () {
         localStorage["num_of_sec"] = 3;
     }
 };
-
-var theApp = new App();
+(function() {
+	var theApp = new App();
+})();
